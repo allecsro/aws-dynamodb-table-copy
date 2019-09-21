@@ -175,10 +175,11 @@ class MigrateThread (threading.Thread):
                 count += 1
 
     def run(self):
-        delay = random.randrange(1, args.segments / 10)
-        logger.info(f'{self.name}: Waiting {delay} seconds to avoid all threads scanning at the exact same time')
-        e = threading.Event()
-        e.wait(timeout = delay) 
+        if args.segments > 20:
+            delay = random.randrange(1, args.segments / 10)
+            logger.info(f'{self.name}: Waiting {delay} seconds to avoid all threads scanning at the exact same time')
+            e = threading.Event()
+            e.wait(timeout = delay) 
 
         self.do_scan()
         while self.lastEvaluatedKey is not None: 
@@ -195,7 +196,7 @@ start = time.time()
 # Start the threads
 threads = []
 for i in range(args.segments):
-    thread = migrateThread(i, f'ScanSegment-{i}')
+    thread = MigrateThread(i, f'ScanSegment-{i}')
     thread.start()
     threads.append(thread)
 
